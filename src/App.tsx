@@ -25,24 +25,40 @@ function App() {
 
 			setIsLoading(true);
 
-			const res = await fetch(API_ENDPOINT, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					question: text,
-					database: ["q", "tthc"],
-					dead: false,
-					roomId: "111111111111111111111111",
-				}),
-			});
-			const data = (await res.json()) as IChatRespone;
+			try {
+				const res = await fetch(API_ENDPOINT, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						question: text,
+						database: ["q", "tthc"],
+						dead: false,
+						roomId: "111111111111111111111111",
+					}),
+				});
+				if (res.status !== 200) {
+					throw new Error((await res.text()) || "Timeout");
+				}
+				const data = (await res.json()) as IChatRespone;
 
-			setChatList((prev) => [
-				...prev,
-				{ id: v4(), content: data.answer, type: "bot", ...data },
-			]);
+				setChatList((prev) => [
+					...prev,
+					{ id: v4(), content: data.answer, type: "bot", ...data },
+				]);
+			} catch (e) {
+				const typedError = e as Error;
+				setChatList((prev) => [
+					...prev,
+					{
+						id: v4(),
+						content: `Đã xảy ra lỗi\n ${typedError.message}`,
+						type: "bot",
+					},
+				]);
+			}
+
 			setIsLoading(false);
 		},
 		[isLoading]
@@ -87,10 +103,14 @@ function App() {
 								) : null}
 							</p>
 							{type === "bot" ? (
-								<div className=" mt-5">
-									<div className=" flex gap-3 flex-wrap">
-										{related_q
-											? related_q.map((question) => (
+								<div className="">
+									{related_q ? (
+										<>
+											{related_q?.length !== 0 ? (
+												<p className="mt-5 text-neutral-400 font-medium text-sm">Các câu hỏi liên quan</p>
+											) : null}
+											<div className="mt-3 ml-3 flex gap-3 flex-wrap">
+												{related_q.map((question) => (
 													<button
 														onClick={() =>
 															handleSendText(question)
@@ -98,12 +118,19 @@ function App() {
 													>
 														{question}
 													</button>
-											  ))
-											: null}
-									</div>
-									<div className="mt-3 flex gap-3 flex-wrap">
-										{related_tthc
-											? related_tthc.map((question) => (
+												))}
+											</div>
+										</>
+									) : null}
+									{related_tthc ? (
+										<>
+											{related_tthc.length !== 0 ? (
+												<p className="mt-5 text-neutral-400 font-medium text-sm">
+													Các thủ tục hành chính liên quan
+												</p>
+											) : null}
+											<div className="mt-3 ml-3 flex gap-3 flex-wrap">
+												{related_tthc.map((question) => (
 													<button
 														onClick={() =>
 															handleSendText(question)
@@ -111,9 +138,10 @@ function App() {
 													>
 														{question}
 													</button>
-											  ))
-											: null}
-									</div>
+												))}
+											</div>
+										</>
+									) : null}
 								</div>
 							) : null}
 						</div>
