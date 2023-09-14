@@ -115,6 +115,7 @@ function App() {
 														onClick={() =>
 															handleSendText(question)
 														}
+                            className=" text-left"
 													>
 														{question}
 													</button>
