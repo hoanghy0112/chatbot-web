@@ -91,14 +91,26 @@ function App() {
 									<div className=" flex gap-3 flex-wrap">
 										{related_q
 											? related_q.map((question) => (
-													<button>{question}</button>
+													<button
+														onClick={() =>
+															handleSendText(question)
+														}
+													>
+														{question}
+													</button>
 											  ))
 											: null}
 									</div>
 									<div className="mt-3 flex gap-3 flex-wrap">
 										{related_tthc
 											? related_tthc.map((question) => (
-													<button>{question}</button>
+													<button
+														onClick={() =>
+															handleSendText(question)
+														}
+													>
+														{question}
+													</button>
 											  ))
 											: null}
 									</div>
