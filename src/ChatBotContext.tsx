@@ -96,7 +96,7 @@ export const ChatBotProvider = ({ children }: PropsWithChildren) => {
         ...prev,
         {
           id: v4(),
-          content: "Xin lôi, tôi không hiểu câu hỏi của bạn.",
+          content: "Xin lỗi, tôi không hiểu câu hỏi của bạn.",
           type: "bot",
         },
       ]);
