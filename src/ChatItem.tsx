@@ -59,7 +59,7 @@ const _ChatItem = ({
                   key={`href-${title}-${index}}`}
                   href={link}
                   target="_blank"
-                  className="px-2 rounded-md hover:bg-[#bf0000] hover:text-white ring-1 ring-[#bf0000] text-[#bf0000] text-sm line-clamp-1"
+                  className="px-2 rounded-md hover:bg-[#bf0000] hover:text-white ring-1 ring-[#bf0000] text-[#bf0000] text-sm line-clamp-1 max-w-[300px]"
                   title={title}
                 >
                   {title}

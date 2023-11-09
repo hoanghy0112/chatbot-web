@@ -15,6 +15,7 @@ type ChatBotContextType = {
   setChatText: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  abortController: AbortController;
 };
 
 export const ChatBotContext = createContext<ChatBotContextType>({
@@ -27,6 +28,7 @@ export const ChatBotContext = createContext<ChatBotContextType>({
   setChatText: () => {},
   isLoading: false,
   setIsLoading: () => {},
+  abortController: new AbortController(),
 });
 
 export const ChatBotProvider = ({ children }: PropsWithChildren) => {
@@ -34,6 +36,9 @@ export const ChatBotProvider = ({ children }: PropsWithChildren) => {
   const [lastChat, setLastChat] = React.useState<IChatItem | null>(null);
   const [chatText, setChatText] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [abortController, setAbortController] = React.useState<AbortController>(
+    new AbortController()
+  );
 
   React.useEffect(() => {
     if (chatList.length > 0) {
@@ -63,6 +68,7 @@ export const ChatBotProvider = ({ children }: PropsWithChildren) => {
           dead: false,
           roomId: "111111111111111111111111",
         }),
+        signal: abortController.signal,
       });
       if (res.status !== 200) {
         throw new Error((await res.text()) || "Timeout");
@@ -91,7 +97,11 @@ export const ChatBotProvider = ({ children }: PropsWithChildren) => {
           ...data,
         },
       ]);
-    } catch {
+    } catch (e) {
+      if (e instanceof DOMException) {
+        setAbortController(new AbortController());
+        return;
+      }
       setChatList((prev) => [
         ...prev,
         {
@@ -115,6 +125,7 @@ export const ChatBotProvider = ({ children }: PropsWithChildren) => {
     setChatText,
     isLoading,
     setIsLoading,
+    abortController,
   };
 
   return (

@@ -5,6 +5,7 @@ import { useChatBotContext } from "./ChatBotContext";
 import ChatItem from "./ChatItem";
 import SendIcon from "./SendIcon";
 import Generating from "./Generating";
+import CancelFetch from "./CancelFetch";
 
 function App() {
   const { chatList, handleSendText, setChatText, chatText, isLoading } =
@@ -59,7 +60,7 @@ function App() {
         {isLoading && <Generating />}
         <div ref={bottomRef} />
       </div>
-      <div className="flex flex-col mx-5 fixed right-0 left-0 bottom-5 z-[99] gap-8">
+      <div className="flex flex-col p-5 pt-10 fixed right-0 left-0 bottom-0 z-[99] gap-8 bg-gradient-to-t from-white via-white to-gray">
         <div className="flex gap-3 rounded-2xl border border-input bg-white py-3 px-4 shadow-custom">
           <input
             ref={inputRef}
@@ -74,19 +75,19 @@ function App() {
             className="w-full rounded-md outline-none bg-white"
             onKeyDown={(e) => e.key === "Enter" && send()}
           />
-          <button
-            className={`flex flex-row items-center transition-opacity justify-center p-2 bg-[#bf0000] rounded-md ${
-              isLoading || chatText === "" ? "opacity-10" : ""
-            }`}
-            disabled={isLoading || chatText === ""}
-            onClick={send}
-          >
-            {isLoading ? (
-              <Spinner size="sm" />
-            ) : (
+          {isLoading ? (
+            <CancelFetch />
+          ) : (
+            <button
+              className={`flex flex-row items-center transition-opacity justify-center p-2 bg-[#bf0000] rounded-md ${
+                chatText === "" ? "opacity-20" : ""
+              }`}
+              disabled={isLoading || chatText === ""}
+              onClick={send}
+            >
               <SendIcon width={16} height={16} />
-            )}
-          </button>
+            </button>
+          )}
         </div>
       </div>
     </div>
