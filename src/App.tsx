@@ -1,5 +1,4 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Spinner } from "@nextui-org/react";
 import { useEffect, useRef } from "react";
 import { useChatBotContext } from "./ChatBotContext";
 import ChatItem from "./ChatItem";
