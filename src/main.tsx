@@ -4,11 +4,14 @@ import App from "./App.tsx";
 import { NextUIProvider } from "@nextui-org/react";
 
 import "./index.css";
+import { ChatBotProvider } from "./ChatBotContext.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-	<React.StrictMode>
-		<NextUIProvider>
-			<App />
-		</NextUIProvider>
-	</React.StrictMode>
+  <React.StrictMode>
+    <NextUIProvider>
+      <ChatBotProvider>
+        <App />
+      </ChatBotProvider>
+    </NextUIProvider>
+  </React.StrictMode>
 );
