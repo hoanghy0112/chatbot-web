@@ -45,13 +45,13 @@ const _ChatItem = ({
           } shadow-custom h-fit`}
         >
           <p
-            className={`px-4 py-2 ${reference ? "border-b" : ""} ${
-              type === "client" ? "text-white" : "text-black"
-            }`}
+            className={`px-4 py-2 ${
+              reference && reference.length > 0 ? "border-b" : ""
+            } ${type === "client" ? "text-white" : "text-black"}`}
           >
             {content}
           </p>
-          {reference && (
+          {reference && reference.length > 0 && (
             <div className="flex gap-2 px-4 py-2 items-center">
               <p className="text-sm font-bold">Tham khảo:</p>
               {reference.map(({ link, title }, index) => (
@@ -67,45 +67,48 @@ const _ChatItem = ({
             </div>
           )}
         </div>
-        {lastChat && lastChat.id === id && (related_q || related_tthc) && (
-          <div className="flex items-center gap-4">
-            <ChatHelpIcon width={20} height={20} fill="#bf0000" />
-            {renderQ.length === 1 && related_q && (
-              <button
-                className="rounded-md ring-1 hover:text-white ring-[#bf0000] text-[#bf0000] text-sm px-2 hover:bg-[#bf0000]"
-                onClick={onPressRelatedQ}
-              >
-                Câu hỏi liên quan
-              </button>
-            )}
-            {renderQ.length === 1 && related_tthc && (
-              <button
-                className="rounded-md ring-1 hover:text-white ring-[#bf0000] text-[#bf0000] text-sm px-2 hover:bg-[#bf0000]"
-                onClick={onPressRelatedTTHC}
-              >
-                Thủ tục hành chính liên quan
-              </button>
-            )}
-            {renderQ.length > 1 &&
-              renderQ.map((q, index) => (
+        {lastChat &&
+          lastChat.id === id &&
+          ((related_q && related_q.length > 0) ||
+            (related_tthc && related_tthc.length > 0)) && (
+            <div className="flex items-center gap-4">
+              <ChatHelpIcon width={20} height={20} fill="#bf0000" />
+              {renderQ.length === 1 && related_q && (
                 <button
                   className="rounded-md ring-1 hover:text-white ring-[#bf0000] text-[#bf0000] text-sm px-2 hover:bg-[#bf0000]"
-                  onClick={() => onPressQ(q)}
-                  key={`q-${index}-${q}`}
+                  onClick={onPressRelatedQ}
                 >
-                  {q}
+                  Câu hỏi liên quan
                 </button>
-              ))}
-            {renderQ.length > 1 && (
-              <button
-                onClick={returnQ}
-                className="text-sm underline text-[#bf0000]"
-              >
-                Trở lại
-              </button>
-            )}
-          </div>
-        )}
+              )}
+              {renderQ.length === 1 && related_tthc && (
+                <button
+                  className="rounded-md ring-1 hover:text-white ring-[#bf0000] text-[#bf0000] text-sm px-2 hover:bg-[#bf0000]"
+                  onClick={onPressRelatedTTHC}
+                >
+                  Thủ tục hành chính liên quan
+                </button>
+              )}
+              {renderQ.length > 1 &&
+                renderQ.map((q, index) => (
+                  <button
+                    className="rounded-md ring-1 hover:text-white ring-[#bf0000] text-[#bf0000] text-sm px-2 hover:bg-[#bf0000]"
+                    onClick={() => onPressQ(q)}
+                    key={`q-${index}-${q}`}
+                  >
+                    {q}
+                  </button>
+                ))}
+              {renderQ.length > 1 && (
+                <button
+                  onClick={returnQ}
+                  className="text-sm underline text-[#bf0000]"
+                >
+                  Trở lại
+                </button>
+              )}
+            </div>
+          )}
       </div>
     </div>
   );
