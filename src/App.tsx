@@ -1,196 +1,96 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Spinner } from "@nextui-org/react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { v4 } from "uuid";
-
-const API_ENDPOINT =
-	"https://mutually-knowing-bull.ngrok-free.app/api/get_answer";
+import { useEffect, useRef } from "react";
+import { useChatBotContext } from "./ChatBotContext";
+import ChatItem from "./ChatItem";
+import SendIcon from "./SendIcon";
+import Generating from "./Generating";
 
 function App() {
-	const [chatList, setChatList] = useState<IChatItem[]>([]);
-	const [chatText, setChatText] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
+  const { chatList, handleSendText, setChatText, chatText, isLoading } =
+    useChatBotContext();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-	const bottomRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView();
+    inputRef.current?.focus();
+  }, [chatList.length]);
 
-	const handleSendText = useCallback(
-		async (text: string) => {
-			if (isLoading) return;
+  useEffect(() => {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        inputRef.current && inputRef.current?.focus();
+      }
+    });
+  }, []);
 
-			setChatText("");
-			setChatList((prev) => [
-				...prev,
-				{ id: v4(), content: text, type: "client" },
-			]);
+  const send = async () => {
+    await handleSendText(chatText);
+  };
 
-			setIsLoading(true);
+  const refresh = () => {
+    localStorage.removeItem("chatList");
+    window.location.reload();
+  };
 
-			try {
-				const res = await fetch(API_ENDPOINT, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						question: text,
-						database: ["q", "tthc"],
-						dead: false,
-						roomId: "111111111111111111111111",
-					}),
-				});
-				if (res.status !== 200) {
-					throw new Error((await res.text()) || "Timeout");
-				}
-				const data = (await res.json()) as IChatRespone;
-
-				setChatList((prev) => [
-					...prev,
-					{ id: v4(), content: data.answer, type: "bot", ...data },
-				]);
-			} catch (e) {
-				const typedError = e as Error;
-				setChatList((prev) => [
-					...prev,
-					{
-						id: v4(),
-						content: `Đã xảy ra lỗi\n ${typedError.message}`,
-						type: "bot",
-					},
-				]);
-			}
-
-			setIsLoading(false);
-		},
-		[isLoading]
-	);
-
-	const handleUserSendQuestion = useCallback(
-		() => handleSendText(chatText),
-		[chatText, handleSendText]
-	);
-
-	useEffect(() => {
-		if (bottomRef.current) {
-			bottomRef.current.scrollIntoView();
-		}
-	}, [chatList.length]);
-
-	return (
-		<div className=" w-full h-screen pb-5 flex flex-col justify-end">
-			<div className=" h-full overflow-auto px-5 py-3 scroll-smooth">
-				{chatList.map(
-					({ id, content, type, ref, related_q, related_tthc }) => (
-						<div
-							className={` my-3 ${type == "client" ? "" : "pr-10"}`}
-							key={id}
-						>
-							<p
-								className={` flex flex-col rounded-md p-4 w-max max-w-full whitespace-pre-wrap ${
-									type === "client"
-										? "ml-auto bg-slate-700"
-										: " pr-5  bg-zinc-700"
-								}`}
-							>
-								{content}
-								{type === "bot" ? (
-									<span className=" mt-4">
-										{ref?.map(({ link, title }) => (
-											<a target="blank" href={link}>
-												{title}
-											</a>
-										))}
-									</span>
-								) : null}
-							</p>
-							{type === "bot" ? (
-								<div className="">
-									{related_q ? (
-										<>
-											{related_q?.length !== 0 ? (
-												<p className="mt-5 text-neutral-400 font-medium text-sm">Các câu hỏi liên quan</p>
-											) : null}
-											<div className="mt-3 ml-3 flex gap-3 flex-wrap">
-												{related_q.map((question) => (
-													<button
-														onClick={() =>
-															handleSendText(question)
-														}
-                            className=" text-left"
-													>
-														{question}
-													</button>
-												))}
-											</div>
-										</>
-									) : null}
-									{related_tthc ? (
-										<>
-											{related_tthc.length !== 0 ? (
-												<p className="mt-5 text-neutral-400 font-medium text-sm">
-													Các thủ tục hành chính liên quan
-												</p>
-											) : null}
-											<div className="mt-3 ml-3 flex gap-3 flex-wrap">
-												{related_tthc.map((question) => (
-													<button
-														onClick={() =>
-															handleSendText(question)
-														}
-													>
-														{question}
-													</button>
-												))}
-											</div>
-										</>
-									) : null}
-								</div>
-							) : null}
-						</div>
-					)
-				)}
-				<div ref={bottomRef} />
-			</div>
-			<div className=" w-full flex items-stretch gap-3 mt-5 px-5">
-				<input
-					value={chatText}
-					onChange={(e) => setChatText(e.target.value)}
-					type="text"
-					className=" w-full rounded-md pl-5"
-					onKeyDown={(e) => e.key === "Enter" && handleUserSendQuestion()}
-				/>
-				<button
-					className=" w-20 h-12 flex flex-row items-center justify-center"
-					disabled={isLoading}
-					onClick={handleUserSendQuestion}
-				>
-					{isLoading ? <Spinner size="sm" /> : "Send"}
-				</button>
-			</div>
-		</div>
-	);
+  return (
+    <div className="w-full h-screen flex flex-col justify-end bg-slate-50">
+      <div className="p-5 border-b-1 shadow-md bg-white flex items-center justify-between">
+        <h1 className="flex gap-2 font-bold text-3xl">
+          <span className="text-[#bf0000]">Chatbot</span>
+          <span>Hỏi đáp dịch vụ công</span>
+        </h1>
+        <button
+          className="hover:text-[#bf0000] text-gray-400"
+          onClick={refresh}
+        >
+          Xóa và làm mới cuộc trò chuyện
+        </button>
+      </div>
+      <div
+        className="h-full overflow-auto scroll-smooth pt-4 flex flex-col gap-4 pb-[160px]"
+        id="content"
+      >
+        {chatList.map((item) => {
+          return <ChatItem key={item.id} {...item} />;
+        })}
+        {isLoading && <Generating />}
+        <div ref={bottomRef} />
+      </div>
+      <div className="flex flex-col mx-5 fixed right-0 left-0 bottom-5 z-[99] gap-8">
+        <div className="flex gap-3 rounded-2xl border border-input bg-white py-3 px-4 shadow-custom">
+          <input
+            ref={inputRef}
+            autoFocus
+            placeholder={
+              isLoading ? "Đang trả lời..." : "Nhập câu hỏi của bạn..."
+            }
+            value={chatText}
+            onChange={(e) => setChatText(e.target.value)}
+            type="text"
+            disabled={isLoading}
+            className="w-full rounded-md outline-none bg-white"
+            onKeyDown={(e) => e.key === "Enter" && send()}
+          />
+          <button
+            className={`flex flex-row items-center transition-opacity justify-center p-2 bg-[#bf0000] rounded-md ${
+              isLoading || chatText === "" ? "opacity-10" : ""
+            }`}
+            disabled={isLoading || chatText === ""}
+            onClick={send}
+          >
+            {isLoading ? (
+              <Spinner size="sm" />
+            ) : (
+              <SendIcon width={16} height={16} />
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
-
-type IChatItem = {
-	id: string;
-	content: string;
-	type: "client" | "bot";
-	ref?: {
-		link: string;
-		title: string;
-	}[];
-	related_q?: string[];
-	related_tthc?: string[];
-};
-
-type IChatRespone = {
-	answer: string;
-	question: string;
-	ref: {
-		link: string;
-		title: string;
-	}[];
-	related_q: string[];
-	related_tthc: string[];
-};
 
 export default App;
