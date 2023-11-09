@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer {
+  button:hover {
+    @apply transition-background;
+  }
+}
+
 :root {
   font-family: "Manrope", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
