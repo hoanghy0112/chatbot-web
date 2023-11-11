@@ -15,10 +15,13 @@ const _ChatItem = ({
   const { lastChat, handleSendText } = useChatBotContext();
   const [renderQ, setRenderQ] = React.useState<string[]>([""]);
   const onPressRelatedQ = () => {
-    setRenderQ(related_q || [""]);
+    const data = related_q instanceof Array ? related_q : [related_q || ""];
+    setRenderQ(data);
   };
   const onPressRelatedTTHC = () => {
-    setRenderQ(related_tthc || [""]);
+    const data =
+      related_tthc instanceof Array ? related_tthc : [related_tthc || ""];
+    setRenderQ(data);
   };
 
   const onPressQ = (selectedQ: string) => {
